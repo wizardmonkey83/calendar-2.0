@@ -1,0 +1,77 @@
+{% extends 'assistance/base.html' %}
+
+{% block title %}Calendar - Care Calendar{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2>Available Slots</h2>
+        {% if is_patient %}
+            <a href="{% url 'create_slot' %}"><button>+ Create Slot</button></a>
+        {% endif %}
+    </div>
+    
+    {% if slots %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Category</th>
+                    <th>When</th>
+                    <th>Where</th>
+                    <th>Availability</th>
+                    <th>Volunteers</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for slot in slots %}
+                    <tr>
+                        <td><strong>{{ slot.task }}</strong></td>
+                        <td>{{ slot.category }}</td>
+                        <td>
+                            {{ slot.start|date:"M d, Y g:i A" }}<br>
+                            <small>to {{ slot.end|date:"g:i A" }}</small>
+                        </td>
+                        <td>{{ slot.location|default:"TBD" }}</td>
+                        <td>
+                            {% if slot.is_full %}
+                                <span class="status-full">FULL ({{ slot.available }}/{{ slot.capacity }})</span>
+                            {% else %}
+                                <span class="status-open">{{ slot.available }} of {{ slot.capacity }} open</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if slot.booked_by %}
+                                <small>{{ slot.booked_by|join:", " }}</small>
+                            {% else %}
+                                <small style="color: #95a5a6;">No one yet</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if is_volunteer %}
+                                {% if slot.booked %}
+                                    <div class="btn-group">
+                                        <button disabled>Booked ✓</button>
+                                        <a href="{% url 'cancel_booking' slot.id %}"><button class="danger">Cancel</button></a>
+                                    </div>
+                                {% elif slot.is_full %}
+                                    <button disabled>Full</button>
+                                {% else %}
+                                    <a href="{% url 'book_slot' slot.id %}"><button>Book</button></a>
+                                {% endif %}
+                            {% else %}
+                                <small style="color: #95a5a6;">Shared with volunteers</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="text-align: center; color: #95a5a6; padding: 2rem;">
+            No upcoming slots. {% if is_patient %}<a href="{% url 'create_slot' %}" style="color: #3498db;">Create one!</a>{% endif %}
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

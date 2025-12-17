@@ -1,0 +1,87 @@
+{% extends 'assistance/base.html' %}
+
+{% block title %}Create Slot - Care Calendar{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px;">
+    <h2>Create a New Slot</h2>
+    
+    {% if form.non_field_errors %}
+        <div class="alert error">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="id_title">Task Name</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <p class="error">{{ form.title.errors.0 }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="id_description">Description (optional)</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <p class="error">{{ form.description.errors.0 }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="id_category">Category (optional)</label>
+            {{ form.category }}
+            {% if form.category.errors %}
+                <p class="error">{{ form.category.errors.0 }}</p>
+            {% endif %}
+            <small style="color: #95a5a6;">e.g., Grocery, Dinner, Finances</small>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label for="id_start_ts">Start Date & Time</label>
+                {{ form.start_ts }}
+                {% if form.start_ts.errors %}
+                    <p class="error">{{ form.start_ts.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_end_ts">End Date & Time</label>
+                {{ form.end_ts }}
+                {% if form.end_ts.errors %}
+                    <p class="error">{{ form.end_ts.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label for="id_capacity">Number of Volunteers Needed</label>
+                {{ form.capacity }}
+                {% if form.capacity.errors %}
+                    <p class="error">{{ form.capacity.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_location">Location (optional)</label>
+                {{ form.location }}
+                {% if form.location.errors %}
+                    <p class="error">{{ form.location.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit">Create Slot</button>
+            <a href="{% url 'calendar' %}"><button type="button" class="secondary">Cancel</button></a>
+        </div>
+    </form>
+</div>
+{% endblock %}

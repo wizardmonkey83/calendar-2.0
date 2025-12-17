@@ -4,7 +4,12 @@ from django.utils.timezone import now as timezone_now
 
 
 class VolunteerProfile(models.Model):
+    ROLE_CHOICES = [
+        ('volunteer', 'Volunteer'),
+        ('patient', 'Patient'),
+    ]
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='volunteer_profile')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='volunteer')
     display_name = models.CharField(max_length=200, blank=True)
     phone = models.CharField(max_length=30, blank=True)
     timezone = models.CharField(max_length=64, default='UTC')
