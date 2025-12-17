@@ -1,0 +1,43 @@
+{% extends 'assistance/base.html' %}
+
+{% block title %}Login - Care Calendar{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 400px; margin: 3rem auto;">
+    <h2>Login</h2>
+    
+    {% if form.non_field_errors %}
+        <div class="alert error">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="id_username">Username</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <p class="error">{{ form.username.errors.0 }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="id_password">Password</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+                <p class="error">{{ form.password.errors.0 }}</p>
+            {% endif %}
+        </div>
+        
+        <button type="submit">Login</button>
+    </form>
+    
+    <p style="margin-top: 1.5rem; text-align: center;">
+        Don't have an account? <a href="{% url 'signup' %}" style="color: #3498db;">Sign Up</a>
+    </p>
+</div>
+{% endblock %}
