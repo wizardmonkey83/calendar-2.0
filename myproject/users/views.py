@@ -3,10 +3,18 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import SignUpForm, LoginForm
 from django.contrib.auth.models import User
-from .models import Profile
+# from .models import Profile
 
 
 # Create your views here.
+def load_signup(request):
+    form = SignUpForm
+    return render(request, "users/signup.html", {"form": form})
+
+def load_login(request):
+    form = LoginForm
+    return render(request, "users/login.html", {"form": form})
+
 def signup_view(request):
     if request.method == "PSOT":
         form = SignUpForm(request.POST)
@@ -19,7 +27,7 @@ def signup_view(request):
             else:
                 user = form.save()
                 # creates profile model alongside the user
-                Profile.objects.create(user=user)
+                # Profile.objects.create(user=user)
                 login(request, user)
 
 
