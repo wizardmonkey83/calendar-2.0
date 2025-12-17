@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import JsonResponse
 from django.utils import timezone
+from django.utils.text import slugify
 from datetime import timedelta
 from .models import Slot, Booking, VolunteerProfile, Task, Category
 from .forms import LoginForm, SignupForm, CreateSlotForm
@@ -204,27 +205,41 @@ def create_slot(request):
     if request.method == 'POST':
         form = CreateSlotForm(request.POST)
         if form.is_valid():
-            # Create task first
-            category = form.cleaned_data.get('category')
-            task, _ = Task.objects.get_or_create(
-                title=form.cleaned_data['title'],
-                created_by=request.user,
-                defaults={
-                    'description': form.cleaned_data.get('description', ''),
-                    'category': category,
-                }
-            )
-            
-            # Create slot
-            slot = Slot.objects.create(
-                task=task,
-                start_ts=form.cleaned_data['start_ts'],
-                end_ts=form.cleaned_data['end_ts'],
-                capacity=form.cleaned_data['capacity'],
-                location=form.cleaned_data.get('location', ''),
-            )
-            
-            return redirect('calendar')
+            start_ts = form.cleaned_data['start_ts']
+            end_ts = form.cleaned_data['end_ts']
+            if end_ts <= start_ts:
+                form.add_error('end_ts', 'End time must be after start time')
+            else:
+                # Resolve category string to Category instance (or None)
+                category_name = form.cleaned_data.get('category') or ''
+                category_obj = None
+                if category_name.strip():
+                    cat_slug = slugify(category_name)
+                    category_obj, _ = Category.objects.get_or_create(
+                        slug=cat_slug,
+                        defaults={'name': category_name, 'color': ''}
+                    )
+
+                # Create or get task
+                task, _ = Task.objects.get_or_create(
+                    title=form.cleaned_data['title'],
+                    created_by=request.user,
+                    defaults={
+                        'description': form.cleaned_data.get('description', ''),
+                        'category': category_obj,
+                    }
+                )
+
+                # Create slot
+                slot = Slot.objects.create(
+                    task=task,
+                    start_ts=start_ts,
+                    end_ts=end_ts,
+                    capacity=form.cleaned_data['capacity'],
+                    location=form.cleaned_data.get('location', ''),
+                )
+
+                return redirect('calendar')
     else:
         form = CreateSlotForm()
     
